@@ -97,7 +97,19 @@ def get_holdings(accession_num):
     return parseXMLInfo(info_table_url)
 
 # parsed_xml = get_holdings("0001083340-15-000003")
-parsed_xml = get_holdings("0001536262-15-000017")
-print parsed_xml
+# parsed_xml = get_holdings("0001536262-15-000017")
+# print parsed_xml
 
+
+# iterate through a list of accession ids and build a dictionary of funds and their holdings
+funds = {}
+for (fund, accession_num) in [("GAMBLE JONES INVESTMENT COUNSEL", "0001536262-15-000017"), ("B.S. PENSION FUND TRUSTEE LTD ACTING FOR THE BRITISH STEEL PENSION FUND", "0001083340-15-000003")]:
+    holdings = get_holdings(accession_num)
+    funds[fund] = holdings
+
+#dbg:
+print "Gamble: ", funds["GAMBLE JONES INVESTMENT COUNSEL"]
+print "BS Pension: ", funds["B.S. PENSION FUND TRUSTEE LTD ACTING FOR THE BRITISH STEEL PENSION FUND"]
+
+# for fund in funds.keys():
 #
