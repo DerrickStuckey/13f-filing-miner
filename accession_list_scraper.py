@@ -16,6 +16,7 @@ iterations = 2
 baseQueryURL = "http://www.sec.gov/cgi-bin/browse-edgar?CIK=&type=13F&owner=include&action=getcurrent"
 baseDataURL = "http://www.sec.gov/Archives/edgar/data"
 
+# based on a filing's accession number, builds the index url for that filing
 def construct_index_url(accession_num):
     frag1 = accession_num[3:10]
     #print "frag1: ", frag1
@@ -23,7 +24,11 @@ def construct_index_url(accession_num):
     #print nodashes
     return baseDataURL + "/" + frag1 + "/" + nodashes + "/" + accession_num + "-index.htm"
 
-def constructInfoTableQuery(shortId, longId):
+# builds url for info table xml file based on short and long id
+def constructInfoTableQuery(index_url):
+    id_dict = extractIds(index_url)
+    shortId = id_dict['shortId']
+    longId = id_dict['longId']
     print "shortId: ", shortId
     print "longId: ", longId
     indexUrl = baseDataURL + "/" + str(shortId) + "/" + str(longId)
@@ -45,6 +50,7 @@ def constructInfoTableQuery(shortId, longId):
     # problem: not all documents have an info table link
     return indexUrl + '/' + xml_link
 
+#extracts long and short ids from a url for the index page of a fund's filings
 def extractIds(indexLink):
     components = indexLink.split('/')
     dataIdx = components.index('data')
@@ -52,6 +58,7 @@ def extractIds(indexLink):
     longId = components[dataIdx + 2]
     return {"shortId":shortId,"longId":longId}
 
+# returns a dictionary of holdings w/ 'issuer_names' and 'values'
 def parseXMLInfo(xmlUrl):
     response = urllib2.urlopen(xmlUrl)
     soup = BeautifulSoup(response)
@@ -82,13 +89,15 @@ def parseXMLInfo(xmlUrl):
 
     return entry_dict
 
+# returns a dictionary of holdings w/ 'issuer_names' and 'values'
 def get_holdings(accession_num):
     index_url = construct_index_url(accession_num)
     print "index_url: ", index_url
-    id_dict = extractIds(index_url)
-    info_table_url = constructInfoTableQuery(id_dict['shortId'], id_dict['longId'])
+    info_table_url = constructInfoTableQuery(index_url)
     return parseXMLInfo(info_table_url)
 
 # parsed_xml = get_holdings("0001083340-15-000003")
 parsed_xml = get_holdings("0001536262-15-000017")
 print parsed_xml
+
+#
