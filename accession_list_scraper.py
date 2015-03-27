@@ -3,8 +3,6 @@ __author__ = 'dstuckey'
 import urllib2
 from bs4 import BeautifulSoup
 
-import csv
-
 # pandas causing problems upon import
 #import pandas as pd
 #import MySQLdb as myDB
@@ -17,6 +15,7 @@ company=""
 iterations = 2
 baseQueryURL = "http://www.sec.gov/cgi-bin/browse-edgar?CIK=&type=13F&owner=include&action=getcurrent"
 baseDataURL = "http://www.sec.gov/Archives/edgar/data"
+baseSecURL = "http://www.sec.gov"
 
 # based on a filing's accession number, builds the index url for that filing
 def construct_index_url(accession_num):
@@ -26,17 +25,9 @@ def construct_index_url(accession_num):
     #print nodashes
     return baseDataURL + "/" + frag1 + "/" + nodashes + "/" + accession_num + "-index.htm"
 
-# builds url for info table xml file based on short and long id
+# builds url for info table xml file based on an index url
 def constructInfoTableQuery(index_url):
-    id_dict = extractIds(index_url)
-    shortId = id_dict['shortId']
-    longId = id_dict['longId']
-    print "shortId: ", shortId
-    print "longId: ", longId
-    indexUrl = baseDataURL + "/" + str(shortId) + "/" + str(longId)
-    #dbg:
-    print indexUrl
-    indexResponse = urllib2.urlopen(indexUrl)
+    indexResponse = urllib2.urlopen(index_url)
     indexSoup = BeautifulSoup(indexResponse)
 
     #find xml link within indexSoup
@@ -46,11 +37,13 @@ def constructInfoTableQuery(index_url):
     for link in allLinks:
         link_href = str(link['href'])
         if (link_href.lower().endswith('xml') and (not 'primary' in link_href.lower())):
-            print link_href
+            #print link_href
             xml_link = link_href
+            #xml_link begins with '/Archives' typically
 
+    print "xml_link: ", xml_link
     # problem: not all documents have an info table link
-    return indexUrl + '/' + xml_link
+    return baseSecURL + xml_link
 
 #extracts long and short ids from a url for the index page of a fund's filings
 def extractIds(indexLink):
@@ -101,39 +94,3 @@ def get_holdings(accession_num):
 # parsed_xml = get_holdings("0001083340-15-000003")
 # parsed_xml = get_holdings("0001536262-15-000017")
 # print parsed_xml
-
-# read all funds names, accession numbers from csv
-funds_acc_nums = []
-with open("text_formatting/formatted_filings.csv") as inputcsv:
-    reader = csv.reader(inputcsv, delimiter=',', quotechar='"')
-    next(reader) #skip header
-    for row in reader:
-        funds_acc_nums.append((row[0],row[3]))
-
-print "funds_acc_nums[0]: ", funds_acc_nums[0]
-
-# dict to hold funds and their holdings
-funds = {}
-
-# iterate through a list of accession ids and build a dictionary of funds and their holdings
-# for (fund, accession_num) in [("GAMBLE JONES INVESTMENT COUNSEL", "0001536262-15-000017"), ("B.S. PENSION FUND TRUSTEE LTD ACTING FOR THE BRITISH STEEL PENSION FUND", "0001083340-15-000003")]:
-for (fund,accession_num) in funds_acc_nums:
-    try:
-        holdings = get_holdings(accession_num)
-        funds[fund] = holdings
-    except:
-        print "unable to get holdings for ", fund
-
-#dbg:
-print "Gamble: ", funds["GAMBLE JONES INVESTMENT COUNSEL"]
-print "BS Pension: ", funds["B.S. PENSION FUND TRUSTEE LTD ACTING FOR THE BRITISH STEEL PENSION FUND"]
-
-# write all fund holdiing info to a CSV
-with open("fund_holdings_test.csv", 'wb') as csvfile:
-    writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(['Fund', 'Security','Value'])
-    for key in funds.keys():
-        fund = funds[key]
-        tuples = zip(fund['issuer_names'],fund['values'])
-        for (security, value) in tuples:
-            writer.writerow([key,security,value])
