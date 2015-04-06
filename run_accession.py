@@ -38,12 +38,12 @@ for (fund,accession_num) in funds_acc_nums:
 # write all fund holdiing info to a CSV
 with open("fund_holdings.csv", 'wb') as csvfile:
     writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(['Fund', 'Security','Value'])
+    writer.writerow(['Fund', 'Security','Value','Cusip'])
     for key in funds.keys():
         fund = funds[key]
-        tuples = zip(fund['issuer_names'],fund['values'])
-        for (security, value) in tuples:
-            writer.writerow([key,security,value])
+        tuples = zip(fund['issuer_names'],fund['values'],fund['cusips'])
+        for (security, value, cusip) in tuples:
+            writer.writerow([key,security,value,cusip])
 
 #print "errors: ", error_log
 

@@ -70,21 +70,25 @@ def parseXMLInfo(xmlUrl):
     print "num entries: ", len(entries)
     issuer_names = []
     values = []
+    cusips = []
 
     for entry in entries:
         issuer_name = str(entry.find(re.compile(".*nameofissuer")).text)
         value = str(entry.find(re.compile(".*value")).text)
+        cusip = str(entry.find(re.compile(".*cusip")).text)
         issuer_names.append(issuer_name)
         values.append(value)
+        cusips.append(cusip)
 
     entry_dict = {
         'issuer_names' : issuer_names,
-        'values' : values
+        'values' : values,
+        'cusips' : cusips
     }
 
     return entry_dict
 
-# returns a dictionary of holdings w/ 'issuer_names' and 'values'
+# returns a dictionary of holdings w/ 'issuer_names', 'cusip', and 'values'
 def get_holdings(accession_num):
     index_url = construct_index_url(accession_num)
     print "index_url: ", index_url
