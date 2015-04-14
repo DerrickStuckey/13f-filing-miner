@@ -12,8 +12,15 @@ cusip_names <- read.csv("~/Desktop/GW/Data Mining/SEC-13F/R_Analysis/cusip_names
 
 # replace all security names w/ most common for that cusip
 lookup_security <- function(x) {cusip_names$Security[cusip_names$Cusip==x]}
-fund_holdings$Security <- lapply(fund_holdings$Cusip, lookup_security)
+#fund_holdings$Security <- lapply(fund_holdings$Cusip, lookup_security)
 #above should take ~10 minutes
+
+#somehow this worked:
+# fund_holdings_by_cusip <- split(x=fund_holdings,f=fund_holdings$Cusip)
+# fund_holdings_by_cusip_2 <- lapply(X=fund_holdings_by_cusip,FUN=function(df) {df$Security2 <- lookup_security(df$Cusip[1])})
+# fund_holdings_please <- unsplit(fund_holdings_by_cusip_2, f=fund_holdings$Cusip)
+# cusip_names_maybe <- fund_holdings_please
+# fund_holdings$Security <- cusip_names_maybe
 
 # save fund_holdings after standardizing names
 write.csv(fund_holdings, file="fund_holdings_names_std.csv", quote=TRUE, row.names=FALSE)
@@ -23,5 +30,5 @@ fund_holdings_agg <- aggregate(fund_holdings$Value, by=list(Fund=fund_holdings$F
 names(fund_holdings_agg)[names(fund_holdings_agg)=='x'] <- "Value"
 
 # save fund_holdings after cleaning up
-write.csv(fund_holdings, file="fund_holdings_cleaned.csv", quote=TRUE, row.names=FALSE)
+write.csv(fund_holdings_agg, file="fund_holdings_cleaned.csv", quote=TRUE, row.names=FALSE)
 
