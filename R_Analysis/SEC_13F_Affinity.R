@@ -1,7 +1,8 @@
 ## Performs an affinity analysis of securities across investment funds
 library(arules)
 
-fund_holdings <- read.csv("~/Desktop/GW/Data Mining/SEC-13F/fund_holdings_v2.csv")
+#fund_holdings <- read.csv("~/Desktop/GW/Data Mining/SEC-13F/fund_holdings_v2.csv")
+fund_holdings <- read.csv("./fund_holdings_cleaned.csv")
 
 # Set minimum threshold for security ownership:
 min_proportion <- 0.01
@@ -39,5 +40,8 @@ itemFrequencyPlot(transact,topN=20)
 fund_rules <- apriori(transact,parameter=list(support=.05,confidence=.75,maxlen=2)) 
 
 #view the rules
-inspect(fund_rules)
-inspect(subset(fund_rules, subset=lift > 10)) 
+#inspect(fund_rules)
+#inspect(subset(fund_rules, subset=lift > 10)) 
+
+#top 10 rules by lift
+inspect(sort(fund_rules, by="lift")[1:10])
