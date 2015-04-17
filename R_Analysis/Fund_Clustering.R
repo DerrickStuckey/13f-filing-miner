@@ -34,31 +34,41 @@ library(reshape2)
 funds_securities_values <- data.frame("Fund"=fund_holdings$Fund,
                                       "Security"=fund_holdings$Security,
                                       "Rel_Value"=fund_holdings$Rel_Value)
-funds_wide <- dcast(funds_securities_values, Fund ~ Security, value.var="Rel_Value",fun.aggregate=length,fill=0)
+funds_wide <- dcast(funds_securities_values, Fund ~ Security, value.var="Rel_Value",
+                    fun.aggregate=sum,fill=0)
 row.names(funds_wide) <- funds_wide$Fund
 funds_wide <- funds_wide[,-1]
 
+# # remove securities only held by a few funds (sparse columns)
+# security_counts <- lapply(funds_wide, sum)
+# dense_securities_list <- security_counts > 10 #arbitrary number, gets to ~2000 securities
+# #summary(dense_securities_list)
+# dense_securities_df <- funds_wide[,dense_securities_list]
+
 # remove securities only held by a few funds (sparse columns)
-security_counts <- lapply(funds_wide, sum)
-dense_securities_list <- security_counts > 10 #arbitrary number, gets to ~2000 securities
+security_sums <- lapply(funds_wide, sum)
+dense_securities_list <- security_sums > 0.01 #arbitrary number
 #summary(dense_securities_list)
+dense_securities_list[is.na(dense_securities_list)] <- FALSE
 dense_securities_df <- funds_wide[,dense_securities_list]
 
 # convert to a matrix
 funds_securities_matrix <- as.matrix(dense_securities_df)
 
 # try k-means clustering
-k <- 5
+k <- 10
 k_means_fit <- kmeans(funds_securities_matrix, k) # 5 cluster solution
 clustered_funds <- data.frame("cluster"=k_means_fit$cluster, dense_securities_df)
 rsq <- k_means_fit$betweenss / k_means_fit$totss
 rsq
+k_means_fit$size
 
 # try k-modes clustering
 library(klaR)
 
 # takes quite a while:
 k_modes_fit <- kmodes(funds_securities_matrix, k)
+mode_clustered_funds <- data.frame("cluster"=k_modes_fit$cluster, dense_securities_df)
 
 # hierarchical clustering
 
