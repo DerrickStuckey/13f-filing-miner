@@ -13,38 +13,37 @@ scaled_fund_stats$other_holdings <- log(scaled_fund_stats$other_holdings+1)
 # convert to a matrix
 funds_stats_matrix <- as.matrix(scaled_fund_stats)
 
-# 
 # try k-means clustering
 k <- 4
-k_means_fit <- kmeans(funds_stats_matrix, k) # 5 cluster solution
+k_means_fit <- kmeans(funds_stats_matrix, k)
 clustered_funds <- data.frame("cluster"=k_means_fit$cluster, fund_derived_stats)
 rsq <- k_means_fit$betweenss / k_means_fit$totss
 rsq
 k_means_fit$size
 
 # plot size vs # common holdings
-plot(fund_derived_stats$common_holdings, fund_derived_stats$size,
+plot(scaled_fund_stats$common_holdings, scaled_fund_stats$size,
      xlab="log(# holdings)",ylab="log(fund size)",
      main="Fund Size vs. Number of Common Holdings",
      col=k_means_fit$cluster)
 legend("topleft", legend = paste("Group", 1:4), pch=1, col=1:4)
 
 # plot # option holdings vs # common holdings
-plot(fund_derived_stats$common_holdings, fund_derived_stats$option_holdings,
+plot(scaled_fund_stats$common_holdings, scaled_fund_stats$option_holdings,
      xlab="log(# common holdings)",ylab="log(# option holdings)",
      main="# of Option Holdings vs. # of Common Holdings",
      col=k_means_fit$cluster)
 legend("topleft", legend = paste("Group", 1:4), pch=1, col=1:4)
 
 # plot # other holdings vs # (common) holdings
-plot(fund_derived_stats$common_holdings, fund_derived_stats$other_holdings,
+plot(scaled_fund_stats$common_holdings, scaled_fund_stats$other_holdings,
      xlab="log(# common holdings)",ylab="log(# other holdings)",
      main="# of Other Holdings vs. # of Common Holdings",
      col=k_means_fit$cluster)
 legend("topleft", legend = paste("Group", 1:4), pch=1, col=1:4)
 
 # plot # option holdings vs # other holdings
-plot(fund_derived_stats$other_holdings, fund_derived_stats$option_holdings,
+plot(scaled_fund_stats$other_holdings, scaled_fund_stats$option_holdings,
      xlab="log(# other holdings)",ylab="log(# option holdings)",
      main="# of Option Holdings vs. # of Other Holdings",
      col=k_means_fit$cluster)
