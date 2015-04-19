@@ -7,12 +7,12 @@ fund_holdings <- read.csv("./fund_holdings_best.csv")
 # calculate total value of securities held for each fund
 fund_split_values <- split(x=fund_holdings[,"Value"],f=fund_holdings$Fund)
 fund_sums <- lapply(fund_split_values, sum)
-log_fund_sums <- log(unlist(fund_sums)+1) #smoothing for log function
+# log_fund_sums <- log(unlist(fund_sums)+1) #smoothing for log function
 #hist(unlist(log_fund_sums))
 
 # calculate total # of holdings for each fund
-fund_num_holdings <- lapply(fund_split_values, length)
-log_num_holdings <- log(unlist(fund_num_holdings+1)) #smoothing for log function
+#fund_num_holdings <- lapply(fund_split_values, length)
+#log_num_holdings <- log(unlist(fund_num_holdings+1)) #smoothing for log function
 #hist(unlist(log_num_holdings))
 
 # calculate # of various position types for each fund
@@ -31,16 +31,17 @@ fund_other_holdings <- lapply(fund_split_positions,
                                })
 
 # take log value of each count (w/ add-one smoothing)
-log_common_holdings <- log(unlist(fund_common_holdings)+1)
-log_option_holdings <- log(unlist(fund_option_holdings)+1)
-log_other_holdings <- log(unlist(fund_other_holdings)+1)
+# log_common_holdings <- log(unlist(fund_common_holdings)+1)
+# log_option_holdings <- log(unlist(fund_option_holdings)+1)
+# log_other_holdings <- log(unlist(fund_other_holdings)+1)
 
 # calculate concentration of holdings for each fund
 #...
 
 # construct fund data frame
-fund_derived_stats <- data.frame("size"=log_fund_sums,
-                                 "common_holdings"=log_common_holdings,
-                                 "other_holdings"=log_other_holdings,
-                                 "option_holdings"=log_option_holdings)
+fund_derived_stats <- data.frame("size"=unlist(fund_sums),
+                                 "common_holdings"=unlist(fund_common_holdings),
+                                 "other_holdings"=unlist(fund_other_holdings),
+                                 "option_holdings"=unlist(fund_option_holdings))
 
+write.csv(fund_derived_stats, "fund_derived_stats.csv", row.names=TRUE)
