@@ -38,3 +38,7 @@ corr_affinity_dedup <- corr_affinity[as.character(corr_affinity$Sec1)
 
 linear_fit <- lm(Corr ~ Affinity, data=corr_affinity_dedup)
 
+#box-whisker plot
+corr_affinity_dedup_fa <- as.factor(corr_affinity_dedup$Affinity)
+plot(corr_affinity_dedup_fa, corr_affinity_dedup$Corr,main="Price Correlation vs Affinity (Top Lift Rules)", ylab="Price Correlation",xlab="Affinity")
+
